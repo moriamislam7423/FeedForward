@@ -1,72 +1,42 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const express = require('express');
+const router = express.Router();
+const { Listing } = require('../models');
 
-const listingSchema = new Schema(
-  {
-    businessId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
+// GET /api/listings
+// Frontend call: api.getListings()
+// Returns all available listings that haven't expired
+router.get('/', async (req, res) => {
+  try {
+    const listings = await Listing.find({
+      status: 'available',
+      expiresAt: { $gt: new Date() } // Only show listings where expiration is in the future
+    }).sort({ createdAt: -1 }); // Show newest posts first
 
-    title:       { type: String, required: true, trim: true },
-    description: { type: String, trim: true },
-
-    // Cloudinary URLs — validated to start with https://res.cloudinary.com
-    photos: {
-      type: [String],
-      validate: {
-        validator: (arr) => arr.every((url) => url.startsWith('https://')),
-        message: 'All photo URLs must be HTTPS',
-      },
-      default: [],
-    },
-
-    dietaryTags: {
-      type: [String],
-      enum: ['vegan', 'vegetarian', 'gluten-free', 'dairy-free', 'nut-free', 'halal', 'kosher', 'other'],
-      default: [],
-    },
-
-    quantity: {
-      amount: { type: Number, required: true, min: 0 },
-      unit:   { type: String, enum: ['lbs', 'kg', 'items', 'servings', 'boxes'], required: true },
-    },
-
-    status: {
-      type: String,
-      enum: ['available', 'claimed', 'completed', 'expired'],
-      default: 'available',
-    },
-
-    // When this listing auto-expires — used by the countdown timer and a cron job
-    expiresAt: { type: Date, required: true },
-
-    // GeoJSON point copied from the business's location at post time
-    location: {
-      type:        { type: String, enum: ['Point'], default: 'Point' },
-      coordinates: { type: [Number], required: true }, // [longitude, latitude]
-    },
-
-    address: { type: String, required: true, trim: true },
-  },
-  { timestamps: true }
-);
-
-// Core geo query index — powers the volunteer map's $near searches
-listingSchema.index({ location: '2dsphere' });
-
-// Compound index for the most common query: "available listings that haven't expired yet"
-listingSchema.index({ status: 1, expiresAt: 1 });
-
-listingSchema.index({ businessId: 1 });
-
-// Auto-mark listings as expired via a TTL-style pre-find hook
-// (Real expiry enforcement is better done with a cron job or MongoDB TTL index on a separate field)
-listingSchema.pre(/^find/, function () {
-  this.where({ expiresAt: { $gt: new Date() } }).where({
-    status: { $ne: 'completed' },
-  });
+    res.json(listings);
+  } catch (error) {
+    console.error('Error fetching listings:', error);
+    res.status(500).json({ error: 'Server error fetching listings' });
+  }
 });
 
-module.exports = mongoose.model('Listing', listingSchema);
+// POST /api/listings
+// Frontend call: api.createListing(listing)
+// Creates a new food listing
+router.post('/', async (req, res) => {
+  try {
+    // req.user.id comes from the mock auth middleware in app.js
+    const newListing = new Listing({
+      ...req.body,
+      businessId: req.user.id 
+    });
+
+    const savedListing = await newListing.save();
+    res.status(201).json(savedListing);
+  } catch (error) {
+    console.error('Error creating listing:', error);
+    // Send back a 400 status (Bad Request) if validation fails (e.g., missing title)
+    res.status(400).json({ error: error.message });
+  }
+});
+
+module.exports = router;
