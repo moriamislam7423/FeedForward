@@ -61,12 +61,5 @@ listingSchema.index({ status: 1, expiresAt: 1 });
 
 listingSchema.index({ businessId: 1 });
 
-// Auto-mark listings as expired via a TTL-style pre-find hook
-// (Real expiry enforcement is better done with a cron job or MongoDB TTL index on a separate field)
-listingSchema.pre(/^find/, function () {
-  this.where({ expiresAt: { $gt: new Date() } }).where({
-    status: { $ne: 'completed' },
-  });
-});
 
 module.exports = mongoose.model('Listing', listingSchema);
