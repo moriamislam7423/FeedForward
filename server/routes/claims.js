@@ -1,82 +1,97 @@
-const mongoose = require('mongoose');
-const crypto   = require('crypto');
-const { Schema } = mongoose;
+const express = require('express');
+const router = express.Router();
+const { Claim, Listing, User } = require('../models');
 
-const claimSchema = new Schema(
-  {
-    listingId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Listing',
-      required: true,
-    },
+// POST /api/claims
+// Frontend call: api.claimListing(listingId)
+// Creates a new claim, generates the OTP, and locks the listing
+router.post('/', async (req, res) => {
+  try {
+    const { listingId } = req.body;
+    const volunteerId = req.user.id; // From our mock auth middleware
 
-    volunteerId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
+    // 1. Verify the listing exists and hasn't been claimed by someone else
+    const listing = await Listing.findById(listingId);
+    if (!listing || listing.status !== 'available') {
+      return res.status(400).json({ error: 'Listing is no longer available.' });
+    }
 
-    // Optional — a shelter or individual recipient the volunteer is delivering to
-    recipientId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      default: null,
-    },
+    // 2. Generate the OTP using your static schema method!
+    const { raw, hash } = Claim.generateOTP();
 
-    // SHA-256 hash of the 6-digit OTP — NEVER store the raw PIN
-    otpHash:     { type: String, required: true },
-    otpVerified: { type: Boolean, default: false },
+    // 3. Create the claim
+    const newClaim = new Claim({
+      listingId,
+      volunteerId,
+      otpHash: hash,
+      // Expires 2 hours from right now
+      otpExpiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000) 
+    });
 
-    // OTP expires 2 hours after claim to prevent stale codes
-    otpExpiresAt: { type: Date, required: true },
+    const savedClaim = await newClaim.save();
 
-    status: {
-      type: String,
-      enum: ['pending', 'in_progress', 'completed', 'cancelled'],
-      default: 'pending',
-    },
+    // 4. Lock the listing so it disappears from the available map
+    listing.status = 'claimed';
+    await listing.save();
 
-    claimedAt:   { type: Date, default: Date.now },
-    completedAt: { type: Date, default: null },
+    // 5. Send back the claim AND the raw PIN
+    //  The frontend NEEDS the raw PIN here so it can display it to the volunteer's screen!
+    res.status(201).json({ 
+      claim: savedClaim, 
+      rawPin: raw 
+    });
 
-    // Optional proof photo URL (Cloudinary) uploaded by volunteer at handoff
-    proofPhotoUrl: { type: String, default: null },
+  } catch (error) {
+    console.error('Error creating claim:', error);
+    res.status(500).json({ error: 'Server error creating claim' });
+  }
+});
 
-    // Short retention — proof photos and event logs should be purged after 30 days
-    purgeAt: {
-      type: Date,
-      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    },
-  },
-  { timestamps: true }
-);
+// POST /api/claims/:id/verify
+// Frontend call: Needs to be added! (e.g., api.verifyClaim(claimId, otp))
+// The business uses this to input the PIN and complete the handoff
+router.post('/:id/verify', async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const claimId = req.params.id;
 
-// --- Static helpers ---
+    const claim = await Claim.findById(claimId);
+    if (!claim) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
 
-/**
- * Generate a 6-digit OTP and return both the raw PIN (to send to volunteer)
- * and its SHA-256 hash (to store in the DB).
- */
-claimSchema.statics.generateOTP = function () {
-  const raw  = crypto.randomInt(100000, 999999).toString();
-  const hash = crypto.createHash('sha256').update(raw).digest('hex');
-  return { raw, hash };
-};
+    // 1. Verify the OTP using your instance method!
+    const isValid = claim.verifyOTP(otp);
+    if (!isValid) {
+      return res.status(400).json({ error: 'Invalid or expired PIN.' });
+    }
 
-/**
- * Verify a raw PIN against the stored hash without exposing the hash.
- */
-claimSchema.methods.verifyOTP = function (rawPin) {
-  if (this.otpExpiresAt < new Date()) return false; // expired
-  const hash = crypto.createHash('sha256').update(rawPin).digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(this.otpHash));
-};
+    // 2. Mark claim as completed
+    claim.otpVerified = true;
+    claim.status = 'completed';
+    claim.completedAt = new Date();
+    await claim.save();
 
-claimSchema.index({ listingId: 1 });
-claimSchema.index({ volunteerId: 1 });
-claimSchema.index({ status: 1 });
+    // 3. Update the parent listing to completed
+    const listing = await Listing.findById(claim.listingId);
+    listing.status = 'completed';
+    await listing.save();
 
-// TTL index — MongoDB will automatically delete completed/cancelled claims after purgeAt
-claimSchema.index({ purgeAt: 1 }, { expireAfterSeconds: 0 });
+    // 4. Update the volunteer's impact stats!
+    // Because you denormalized this on the User model, it's just one fast query.
+    await User.findByIdAndUpdate(claim.volunteerId, {
+      $inc: {
+        'impactStats.poundsRescued': listing.quantity.amount,
+        'impactStats.totalDeliveries': 1
+      }
+    });
 
-module.exports = mongoose.model('Claim', claimSchema);
+    res.json({ message: 'Handoff successful! Claim completed.', claim });
+
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    res.status(500).json({ error: 'Server error verifying OTP' });
+  }
+});
+
+module.exports = router;
