@@ -1,0 +1,23 @@
+POST http://localhost:5000/api/listings
+Content-Type: application/json
+
+{
+  "title": "Dozen Assorted Bagels",
+  "description": "End of day surplus. Still fresh!",
+  "quantity": {
+    "amount": 12,
+    "unit": "items"
+  },
+  "dietaryTags": ["vegan", "dairy-free"],
+  "address": "123 Main St, New York, NY",
+  "location": {
+    "type": "Point",
+    "coordinates": [-74.006, 40.7128]
+  },
+  "expiresAt": "2026-12-31T23:59:00Z"
+}
+
+
+
+###
+GET http://localhost:5000/api/listings
