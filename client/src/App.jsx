@@ -1,3 +1,4 @@
+import Map from './Map';
 import { useEffect, useState } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
 import { api } from './services/api.js';
@@ -490,15 +491,13 @@ function App() {
 
           <section className="map-placeholder card">
             <div>
-              <h2>Nearby pickup map</h2>
-              <p className="muted">A real Google Maps or Mapbox map can be added later.</p>
-            </div>
+               <h2>Nearby pickup map</h2>
+               <p className="muted">
+                 Live Google Maps view of nearby food listings.
+               </p>
+           </div>
 
-            <div className="fake-map">
-              <span className="map-dot dot-one">Cafe</span>
-              <span className="map-dot dot-two">Deli</span>
-              <span className="map-dot dot-three">Grocer</span>
-            </div>
+            <Map />
           </section>
 
           <section className="card controls-card">
