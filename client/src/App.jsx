@@ -37,7 +37,7 @@ const demoListings = [
   {
     id: 'demo-3',
     title: 'Produce Boxes',
-    business: 'Neighborhood Grocer',
+    business: 'Neighborhood Grocery',
     description: 'Mixed produce boxes with apples, lettuce, carrots, and tomatoes.',
     quantity: 8,
     unit: 'boxes',
@@ -432,9 +432,26 @@ function App() {
           <div className="logo">FeedForward</div>
 
           <div className="role-switcher">
-            <button onClick={() => switchRole('volunteer')}>Volunteer</button>
-            <button onClick={() => switchRole('business')}>Business</button>
-            <button onClick={() => switchRole('recipient')}>Recipient</button>
+            <button
+              className={user.role === 'volunteer' ? 'volunteer-active' : ''}
+              onClick={() => switchRole('volunteer')}
+            >
+              Volunteer
+            </button>
+
+            <button
+              className={user.role === 'business' ? 'business-active' : ''}
+              onClick={() => switchRole('business')}
+            >
+              Business
+            </button>
+
+            <button
+              className={user.role === 'recipient' ? 'recipient-active' : ''}
+              onClick={() => switchRole('recipient')}
+            >
+              Recipient
+            </button>
           </div>
         </nav>
 
@@ -450,7 +467,7 @@ function App() {
 
           <div className="hero-panel">
             <p className="muted">Signed in as</p>
-            <h2>{user.name}</h2>
+            <h2 className={`${user.role}-text`}>{user.name}</h2>
             <span className="badge">{user.role}</span>
           </div>
         </div>
@@ -470,17 +487,17 @@ function App() {
           </section>
 
           <section className="dashboard-grid">
-            <div className="stat-card">
+            <div className="stat-card rescued-card">
               <span>Pounds rescued</span>
               <strong>{poundsSaved}</strong>
             </div>
 
-            <div className="stat-card">
+            <div className="stat-card co2-card">
               <span>CO₂ diverted</span>
               <strong>{co2Saved} lbs</strong>
             </div>
 
-            <div className="stat-card">
+            <div className="stat-card claims-card">
               <span>My claims</span>
               <strong>{myClaims.length}</strong>
             </div>
@@ -549,7 +566,8 @@ function App() {
           <section>
             <div className="section-heading">
               <h2>Available food listings</h2>
-              <p className="muted">{visibleListings.length} listing(s) found</p>
+              <p className="
+              ">{visibleListings.length} listing(s) found</p>
             </div>
 
             {loading ? (
@@ -590,7 +608,7 @@ function App() {
                         <div className="tag-row">
                           {listing.tags.map(function (tag) {
                             return (
-                              <span className="tag" key={tag}>
+                              <span className={`tag ${tag}`} key={tag}>
                                 {tag}
                               </span>
                             );
