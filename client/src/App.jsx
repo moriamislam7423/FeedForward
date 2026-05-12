@@ -1,4 +1,4 @@
-import Map from './Map';
+import Map from './Map.jsx';
 import { useEffect, useState } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
 import { api } from './services/api.js';
@@ -96,8 +96,147 @@ function cleanBackendListing(listing) {
   };
 }
 
+function LoginScreen() {
+  const { login } = useAuth();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('volunteer');
+  const [error, setError] = useState('');
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    setError('');
+
+    if (name.trim() === '') {
+      setError('Please enter your name.');
+      return;
+    }
+
+    if (email.trim() === '') {
+      setError('Please enter your email.');
+      return;
+    }
+
+    login(name, email, role);
+  }
+
+  return (
+    <main className="login-page">
+      <section className="login-card">
+        <p className="eyebrow">Welcome to</p>
+        <h1>FeedForward</h1>
+        <p className="muted">Choose a demo role to test the platform.</p>
+
+        {error && <p className="alert error">{error}</p>}
+
+        <form onSubmit={handleSubmit}>
+          <label>
+            Name
+            <input
+              value={name}
+              onChange={function (event) {
+                setName(event.target.value);
+              }}
+              placeholder="Your name"
+            />
+          </label>
+
+          <label>
+            Email
+            <input
+              value={email}
+              onChange={function (event) {
+                setEmail(event.target.value);
+              }}
+              placeholder="you@example.com"
+            />
+          </label>
+
+          <label>
+            Role
+            <select
+              value={role}
+              onChange={function (event) {
+                setRole(event.target.value);
+              }}
+            >
+              <option value="volunteer">Volunteer</option>
+              <option value="business">Business</option>
+              <option value="recipient">Recipient / Shelter</option>
+            </select>
+          </label>
+
+          <button className="primary-button" type="submit">
+            Continue
+          </button>
+        </form>
+
+        <div className="demo-login-buttons">
+          <button
+            onClick={function () {
+              login('Demo Volunteer', 'volunteer@demo.com', 'volunteer');
+            }}
+          >
+            Demo Volunteer
+          </button>
+
+          <button
+            onClick={function () {
+              login('Demo Business', 'business@demo.com', 'business');
+            }}
+          >
+            Demo Business
+          </button>
+
+          <button
+            onClick={function () {
+              login('Demo Shelter', 'shelter@demo.com', 'recipient');
+            }}
+          >
+            Demo Recipient
+          </button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function RoleMessage({ role }) {
+  if (role === 'business') {
+    return (
+      <section className="card role-message business-message">
+        <h2>Business view</h2>
+        <p>
+          Businesses can post surplus food so volunteers and recipients can find it before it expires.
+        </p>
+      </section>
+    );
+  }
+
+  if (role === 'volunteer') {
+    return (
+      <section className="card role-message volunteer-message">
+        <h2>Volunteer view</h2>
+        <p>
+          Volunteers can search food listings, claim pickups, and view their pickup PIN.
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="card role-message recipient-message">
+      <h2>Recipient view</h2>
+      <p>
+        Recipients can view nearby food listings and receive donation notifications.
+      </p>
+    </section>
+  );
+}
+
 function App() {
-  const { user, switchRole } = useAuth();
+  const { user, logout, switchRole } = useAuth();
 
   const [listings, setListings] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
@@ -121,19 +260,27 @@ function App() {
     expiresInMinutes: '120'
   });
 
-  useEffect(() => {
-    loadSavedData();
-    loadListings();
-    loadNotifications();
-  }, []);
+  useEffect(function () {
+    if (user) {
+      loadSavedData();
+      loadListings();
+      loadNotifications();
+    }
+  }, [user]);
 
-  useEffect(() => {
-    localStorage.setItem('feedforward_listings', JSON.stringify(listings));
+  useEffect(function () {
+    if (listings.length > 0) {
+      localStorage.setItem('feedforward_listings', JSON.stringify(listings));
+    }
   }, [listings]);
 
-  useEffect(() => {
+  useEffect(function () {
     localStorage.setItem('feedforward_claims', JSON.stringify(myClaims));
   }, [myClaims]);
+
+  if (!user) {
+    return <LoginScreen />;
+  }
 
   function loadSavedData() {
     const savedListings = localStorage.getItem('feedforward_listings');
@@ -175,7 +322,7 @@ function App() {
       }
 
       setBackendStatus('Demo mode: backend is not connected');
-      setErrorMessage('Backend is not running, so demo data is being used.');
+      setErrorMessage('Backend is not connected, so demo data is being used.');
     }
 
     setLoading(false);
@@ -236,6 +383,11 @@ function App() {
       return;
     }
 
+    if (Number(form.expiresInMinutes) < 15) {
+      setErrorMessage('Expiration time must be at least 15 minutes.');
+      return;
+    }
+
     const tagList = form.tags
       .split(',')
       .map(function (tag) {
@@ -273,7 +425,7 @@ function App() {
       const localListing = {
         id: 'local-' + Date.now(),
         title: form.title,
-        business: 'My Business',
+        business: user.name,
         description: form.description || 'No description added.',
         quantity: Number(form.quantity),
         unit: form.unit,
@@ -318,8 +470,11 @@ function App() {
     setClaimingId(listing.id);
 
     try {
+      let pin = '123456';
+
       if (!listing.isDemo) {
-        await api.claimListing(listing.id);
+        const result = await api.claimListing(listing.id);
+        pin = result.rawPin || result.pin || '123456';
       }
 
       const updatedListings = listings.map(function (item) {
@@ -338,7 +493,7 @@ function App() {
         title: listing.title,
         business: listing.business,
         address: listing.address,
-        pin: '123456'
+        pin: pin
       };
 
       setListings(updatedListings);
@@ -347,14 +502,14 @@ function App() {
       setNotifications([
         {
           id: 'note-' + Date.now(),
-          text: 'You claimed ' + listing.title + '. Pickup PIN: 123456.',
+          text: 'You claimed ' + listing.title + '. Pickup PIN: ' + pin + '.',
           read: false,
           isDemo: true
         },
         ...notifications
       ]);
 
-      setSuccessMessage('Pickup claimed. Demo PIN: 123456.');
+      setSuccessMessage('Pickup claimed. PIN: ' + pin);
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -431,26 +586,38 @@ function App() {
         <nav className="top-nav">
           <div className="logo">FeedForward</div>
 
-          <div className="role-switcher">
-            <button
-              className={user.role === 'volunteer' ? 'volunteer-active' : ''}
-              onClick={() => switchRole('volunteer')}
-            >
-              Volunteer
-            </button>
+          <div className="nav-actions">
+            <div className="role-switcher">
+              <button
+                className={user.role === 'volunteer' ? 'volunteer-active' : ''}
+                onClick={function () {
+                  switchRole('volunteer');
+                }}
+              >
+                Volunteer
+              </button>
 
-            <button
-              className={user.role === 'business' ? 'business-active' : ''}
-              onClick={() => switchRole('business')}
-            >
-              Business
-            </button>
+              <button
+                className={user.role === 'business' ? 'business-active' : ''}
+                onClick={function () {
+                  switchRole('business');
+                }}
+              >
+                Business
+              </button>
 
-            <button
-              className={user.role === 'recipient' ? 'recipient-active' : ''}
-              onClick={() => switchRole('recipient')}
-            >
-              Recipient
+              <button
+                className={user.role === 'recipient' ? 'recipient-active' : ''}
+                onClick={function () {
+                  switchRole('recipient');
+                }}
+              >
+                Recipient
+              </button>
+            </div>
+
+            <button className="logout-button" onClick={logout}>
+              Log out
             </button>
           </div>
         </nav>
@@ -468,6 +635,7 @@ function App() {
           <div className="hero-panel">
             <p className="muted">Signed in as</p>
             <h2 className={`${user.role}-text`}>{user.name}</h2>
+            <p>{user.email}</p>
             <span className="badge">{user.role}</span>
           </div>
         </div>
@@ -475,6 +643,8 @@ function App() {
 
       <section className="content-grid">
         <div className="main-column">
+          <RoleMessage role={user.role} />
+
           <section className="status-card card">
             <div>
               <h2>Frontend status</h2>
@@ -508,13 +678,13 @@ function App() {
 
           <section className="map-placeholder card">
             <div>
-               <h2>Nearby pickup map</h2>
-               <p className="muted">
-                 Live Google Maps view of nearby food listings.
-               </p>
-           </div>
+              <h2>Nearby pickup map</h2>
+              <p className="muted">
+                Live Google Maps view of nearby food listings.
+              </p>
+            </div>
 
-            <Map />
+            <Map listings={visibleListings} />
           </section>
 
           <section className="card controls-card">
@@ -566,8 +736,7 @@ function App() {
           <section>
             <div className="section-heading">
               <h2>Available food listings</h2>
-              <p className="
-              ">{visibleListings.length} listing(s) found</p>
+              <p className="muted">{visibleListings.length} listing(s) found</p>
             </div>
 
             {loading ? (
@@ -582,6 +751,7 @@ function App() {
                 {visibleListings.map(function (listing) {
                   const isClaiming = claimingId === listing.id;
                   const isClaimed = listing.status === 'claimed';
+                  const canClaim = user.role === 'volunteer';
 
                   return (
                     <article className="card listing-card" key={listing.id}>
@@ -629,19 +799,27 @@ function App() {
 
                         <p className="address">📍 {listing.address}</p>
 
-                        <button
-                          className="primary-button"
-                          disabled={isClaimed || isClaiming}
-                          onClick={function () {
-                            claimListing(listing);
-                          }}
-                        >
-                          {isClaiming
-                            ? 'Claiming...'
-                            : isClaimed
-                              ? 'Already claimed'
-                              : 'Claim pickup'}
-                        </button>
+                        {user.role === 'business' ? (
+                          <p className="role-note">
+                            Businesses can post listings from the form.
+                          </p>
+                        ) : (
+                          <button
+                            className="primary-button"
+                            disabled={!canClaim || isClaimed || isClaiming}
+                            onClick={function () {
+                              claimListing(listing);
+                            }}
+                          >
+                            {isClaiming
+                              ? 'Claiming...'
+                              : isClaimed
+                                ? 'Already claimed'
+                                : canClaim
+                                  ? 'Claim pickup'
+                                  : 'Volunteer only'}
+                          </button>
+                        )}
                       </div>
                     </article>
                   );
@@ -652,111 +830,115 @@ function App() {
         </div>
 
         <aside className="side-column">
-          <section className="card form-card">
-            <h2>Post extra food</h2>
-            <p className="muted">Businesses can add a new food donation here.</p>
+          {user.role === 'business' && (
+            <section className="card form-card">
+              <h2>Post extra food</h2>
+              <p className="muted">Businesses can add a new food donation here.</p>
 
-            <form onSubmit={addListing}>
-              <label>
-                Food title
-                <input
-                  name="title"
-                  value={form.title}
-                  onChange={updateForm}
-                  placeholder="Example: Sandwich trays"
-                />
-              </label>
-
-              <label>
-                Description
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={updateForm}
-                  placeholder="Describe the food."
-                />
-              </label>
-
-              <div className="two-column-form">
+              <form onSubmit={addListing}>
                 <label>
-                  Quantity
+                  Food title
                   <input
-                    name="quantity"
-                    type="number"
-                    min="1"
-                    value={form.quantity}
+                    name="title"
+                    value={form.title}
                     onChange={updateForm}
+                    placeholder="Example: Sandwich trays"
                   />
                 </label>
 
                 <label>
-                  Unit
-                  <select name="unit" value={form.unit} onChange={updateForm}>
-                    <option value="items">items</option>
-                    <option value="servings">servings</option>
-                    <option value="boxes">boxes</option>
-                    <option value="lbs">lbs</option>
-                  </select>
+                  Description
+                  <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={updateForm}
+                    placeholder="Describe the food."
+                  />
                 </label>
-              </div>
 
-              <label>
-                Pickup address
-                <input
-                  name="address"
-                  value={form.address}
-                  onChange={updateForm}
-                  placeholder="Example: 10 Market Street"
-                />
-              </label>
+                <div className="two-column-form">
+                  <label>
+                    Quantity
+                    <input
+                      name="quantity"
+                      type="number"
+                      min="1"
+                      value={form.quantity}
+                      onChange={updateForm}
+                    />
+                  </label>
 
-              <label>
-                Dietary tags
-                <input
-                  name="tags"
-                  value={form.tags}
-                  onChange={updateForm}
-                  placeholder="Example: vegan, vegetarian"
-                />
-              </label>
+                  <label>
+                    Unit
+                    <select name="unit" value={form.unit} onChange={updateForm}>
+                      <option value="items">items</option>
+                      <option value="servings">servings</option>
+                      <option value="boxes">boxes</option>
+                      <option value="lbs">lbs</option>
+                    </select>
+                  </label>
+                </div>
 
-              <label>
-                Expires in minutes
-                <input
-                  name="expiresInMinutes"
-                  type="number"
-                  min="15"
-                  value={form.expiresInMinutes}
-                  onChange={updateForm}
-                />
-              </label>
+                <label>
+                  Pickup address
+                  <input
+                    name="address"
+                    value={form.address}
+                    onChange={updateForm}
+                    placeholder="Example: 10 Market Street"
+                  />
+                </label>
 
-              <button className="primary-button" type="submit">
-                Add listing
-              </button>
-            </form>
-          </section>
+                <label>
+                  Dietary tags
+                  <input
+                    name="tags"
+                    value={form.tags}
+                    onChange={updateForm}
+                    placeholder="Example: vegan, vegetarian"
+                  />
+                </label>
 
-          <section className="card">
-            <h2>My Claims</h2>
+                <label>
+                  Expires in minutes
+                  <input
+                    name="expiresInMinutes"
+                    type="number"
+                    min="15"
+                    value={form.expiresInMinutes}
+                    onChange={updateForm}
+                  />
+                </label>
 
-            {myClaims.length === 0 ? (
-              <p className="muted">You have not claimed any pickups yet.</p>
-            ) : (
-              <div className="claim-list">
-                {myClaims.map(function (claim) {
-                  return (
-                    <div className="claim-item" key={claim.id}>
-                      <strong>{claim.title}</strong>
-                      <p>{claim.business}</p>
-                      <p>{claim.address}</p>
-                      <p>Pickup PIN: {claim.pin}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+                <button className="primary-button" type="submit">
+                  Add listing
+                </button>
+              </form>
+            </section>
+          )}
+
+          {user.role === 'volunteer' && (
+            <section className="card">
+              <h2>My Claims</h2>
+
+              {myClaims.length === 0 ? (
+                <p className="muted">You have not claimed any pickups yet.</p>
+              ) : (
+                <div className="claim-list">
+                  {myClaims.map(function (claim) {
+                    return (
+                      <div className="claim-item" key={claim.id}>
+                        <strong>{claim.title}</strong>
+                        <p>{claim.business}</p>
+                        <p>{claim.address}</p>
+                        <p>Pickup PIN: {claim.pin}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          )}
 
           <section className="card">
             <h2>Notifications</h2>
@@ -789,6 +971,15 @@ function App() {
               </ul>
             )}
           </section>
+
+          {user.role === 'recipient' && (
+            <section className="card recipient-info">
+              <h2>Recipient help</h2>
+              <p>
+                Recipients can view food listings and notifications when donations are available nearby.
+              </p>
+            </section>
+          )}
         </aside>
       </section>
     </main>

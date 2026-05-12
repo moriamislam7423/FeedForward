@@ -1,4 +1,4 @@
-const API_URL = 'https://feedforward-backend-2snz.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://feedforward-backend-2snz.onrender.com/api';
 
 async function request(path, options = {}) {
   const response = await fetch(API_URL + path, {
