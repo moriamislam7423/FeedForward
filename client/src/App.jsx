@@ -262,6 +262,7 @@ function App() {
 
   useEffect(function () {
     if (user) {
+      api.setRole(user.role);
       loadSavedData();
       loadListings();
       loadNotifications();
