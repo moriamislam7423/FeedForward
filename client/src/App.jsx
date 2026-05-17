@@ -257,7 +257,8 @@ function App() {
     unit: 'items',
     address: '',
     tags: 'vegetarian',
-    expiresInMinutes: '120'
+    expiresInMinutes: '120',
+    photoPreview: ''
   });
 
   useEffect(function () {
@@ -363,6 +364,25 @@ function App() {
     });
   }
 
+  function updatePhoto(event) {
+    const file = event.target.files[0];
+  
+    if (!file) {
+      return;
+    }
+  
+    const reader = new FileReader();
+  
+    reader.onload = function () {
+      setForm({
+        ...form,
+        photoPreview: reader.result
+      });
+    };
+  
+    reader.readAsDataURL(file);
+  }
+
   async function addListing(event) {
     event.preventDefault();
 
@@ -435,7 +455,7 @@ function App() {
         tags: tagList,
         minutesLeft: Number(form.expiresInMinutes),
         status: 'available',
-        photo: '/images/stock.jpg',
+        photo: form.photoPreview || '/images/stock.jpg',
         isDemo: true
       };
 
@@ -461,7 +481,8 @@ function App() {
       unit: 'items',
       address: '',
       tags: 'vegetarian',
-      expiresInMinutes: '120'
+      expiresInMinutes: '120',
+      photoPreview: ''
     });
   }
 
@@ -899,6 +920,23 @@ function App() {
                     placeholder="Example: vegan, vegetarian"
                   />
                 </label>
+
+                <label>
+                  Food photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={updatePhoto}
+                  />
+                </label>
+
+                {form.photoPreview && (
+                  <img
+                    className="photo-preview"
+                    src={form.photoPreview}
+                    alt="Food preview"
+                  />
+                )}
 
                 <label>
                   Expires in minutes
