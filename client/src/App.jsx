@@ -1,4 +1,4 @@
-import Map from './Map';
+import Map from './Map.jsx';
 import { useEffect, useState } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
 import { api } from './services/api.js';
@@ -6,47 +6,77 @@ import { api } from './services/api.js';
 const demoListings = [
   {
     id: 'demo-1',
-    title: 'Fresh Bagels and Muffins',
-    business: 'Sunrise Cafe',
-    description: 'Assorted bagels, muffins, and rolls made fresh today.',
+    title: 'Fresh Sandwiches and Protein Boxes',
+    business: 'Joe & The Juice',
+    description: "Extra sandwiches, wraps, muffins, and protein snack boxes from today's lunch rush.",
     quantity: 24,
     unit: 'items',
-    address: '120 Main Street',
+    address: '993 Lexington Avenue, New York, NY',
     distance: 0.7,
-    tags: ['vegetarian'],
+    tags: ['vegetarian', 'vegan'],
     minutesLeft: 95,
     status: 'available',
-    photo: '/images/bakery.jpg',
+    photo: '/images/joejuice.png',
     isDemo: true
   },
   {
     id: 'demo-2',
-    title: 'Healthy Salad Bowls',
-    business: 'Green Market Deli',
-    description: 'Vegetable bowls packed in individual containers.',
-    quantity: 15,
+    title: 'Donuts and Breakfast Sandwiches',
+    business: 'Dunkin Donuts',
+    description: 'Assorted donuts, hash browns, and breakfast sandwiches.',
+    quantity: 20,
     unit: 'servings',
-    address: '88 Oak Avenue',
-    distance: 1.3,
-    tags: ['vegan', 'gluten-free'],
+    address: '882 Lexington Ave, New York, NY',
+    distance: 0.3,
+    tags: ['vegetarian'],
     minutesLeft: 140,
     status: 'available',
-    photo: '/images/veggie-bowl.jpg',
+    photo: '/images/dunkin.png',
     isDemo: true
   },
   {
     id: 'demo-3',
     title: 'Produce Boxes',
-    business: 'Neighborhood Grocer',
-    description: 'Mixed produce boxes with apples, lettuce, carrots, and tomatoes.',
-    quantity: 8,
+    business: 'Whole Foods Market',
+    description: 'Mixed produce boxes with apples, lettuce, carrots, and more.',
+    quantity: 18,
     unit: 'boxes',
-    address: '45 Pine Road',
-    distance: 2.1,
-    tags: ['vegan', 'vegetarian'],
+    address: '1551 3rd Ave, New York, NY',
+    distance: 1.2,
+    tags: ['vegan', 'vegetarian','gluten-free'],
     minutesLeft: 210,
     status: 'available',
-    photo: '/images/produce.jpg',
+    photo: '/images/whole.png',
+    isDemo: true
+  },
+  {
+    id: 'demo-4',
+    title: 'Halal Platters',
+    business: "Shah's Halal Food",
+    description: "Extra chicken or lamb over rice platters with fries and salad from today’s dinner rush.",
+    quantity: 22,
+    unit: 'boxes',
+    address: '1279 1st Avenue, New York, NY',
+    distance: 1.9,
+    tags: ['halal'],
+    minutesLeft: 60,
+    status: 'available',
+    photo: '/images/shah.jpg',
+    isDemo: true
+  },
+  {
+    id: 'demo-5',
+    title: 'Assorted Pizza Slices',
+    business: 'Dominos',
+    description: "Extra pizza boxes available after tonight’s dinner rush.",
+    quantity: 22,
+    unit: 'boxes',
+    address: '1396 1st Avenue, New York, NY',
+    distance: 0.6,
+    tags: ['gluten-free'],
+    minutesLeft: 50,
+    status: 'available',
+    photo: '/images/dominos.png',
     isDemo: true
   }
 ];
@@ -96,8 +126,147 @@ function cleanBackendListing(listing) {
   };
 }
 
+function LoginScreen() {
+  const { login } = useAuth();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('volunteer');
+  const [error, setError] = useState('');
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    setError('');
+
+    if (name.trim() === '') {
+      setError('Please enter your name.');
+      return;
+    }
+
+    if (email.trim() === '') {
+      setError('Please enter your email.');
+      return;
+    }
+
+    login(name, email, role);
+  }
+
+  return (
+    <main className="login-page">
+      <section className="login-card">
+        <p className="eyebrow">Welcome to</p>
+        <h1>FeedForward</h1>
+        <p className="muted">Choose a demo role to test the platform.</p>
+
+        {error && <p className="alert error">{error}</p>}
+
+        <form onSubmit={handleSubmit}>
+          <label>
+            Name
+            <input
+              value={name}
+              onChange={function (event) {
+                setName(event.target.value);
+              }}
+              placeholder="Your name"
+            />
+          </label>
+
+          <label>
+            Email
+            <input
+              value={email}
+              onChange={function (event) {
+                setEmail(event.target.value);
+              }}
+              placeholder="you@example.com"
+            />
+          </label>
+
+          <label>
+            Role
+            <select
+              value={role}
+              onChange={function (event) {
+                setRole(event.target.value);
+              }}
+            >
+              <option value="volunteer">Volunteer</option>
+              <option value="business">Business</option>
+              <option value="recipient">Recipient / Shelter</option>
+            </select>
+          </label>
+
+          <button className="primary-button" type="submit">
+            Continue
+          </button>
+        </form>
+
+        <div className="demo-login-buttons">
+          <button
+            onClick={function () {
+              login('Demo Volunteer', 'volunteer@demo.com', 'volunteer');
+            }}
+          >
+            Demo Volunteer
+          </button>
+
+          <button
+            onClick={function () {
+              login('Demo Business', 'business@demo.com', 'business');
+            }}
+          >
+            Demo Business
+          </button>
+
+          <button
+            onClick={function () {
+              login('Demo Shelter', 'shelter@demo.com', 'recipient');
+            }}
+          >
+            Demo Recipient
+          </button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function RoleMessage({ role }) {
+  if (role === 'business') {
+    return (
+      <section className="card role-message business-message">
+        <h2>Business view</h2>
+        <p>
+          Businesses can post surplus food so volunteers and recipients can find it before it expires.
+        </p>
+      </section>
+    );
+  }
+
+  if (role === 'volunteer') {
+    return (
+      <section className="card role-message volunteer-message">
+        <h2>Volunteer view</h2>
+        <p>
+          Volunteers can search food listings, claim pickups, and view their pickup PIN.
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="card role-message recipient-message">
+      <h2>Recipient view</h2>
+      <p>
+        Recipients can view nearby food listings and receive donation notifications.
+      </p>
+    </section>
+  );
+}
+
 function App() {
-  const { user, switchRole } = useAuth();
+  const { user, logout, switchRole } = useAuth();
 
   const [listings, setListings] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
@@ -118,22 +287,32 @@ function App() {
     unit: 'items',
     address: '',
     tags: 'vegetarian',
-    expiresInMinutes: '120'
+    expiresInMinutes: '120',
+    photoPreview: ''
   });
 
-  useEffect(() => {
-    loadSavedData();
-    loadListings();
-    loadNotifications();
-  }, []);
+  useEffect(function () {
+    if (user) {
+      api.setRole(user.role);
+      loadSavedData();
+      loadListings();
+      loadNotifications();
+    }
+  }, [user]);
 
-  useEffect(() => {
-    localStorage.setItem('feedforward_listings', JSON.stringify(listings));
+  useEffect(function () {
+    if (listings.length > 0) {
+      localStorage.setItem('feedforward_listings', JSON.stringify(listings));
+    }
   }, [listings]);
 
-  useEffect(() => {
+  useEffect(function () {
     localStorage.setItem('feedforward_claims', JSON.stringify(myClaims));
   }, [myClaims]);
+
+  if (!user) {
+    return <LoginScreen />;
+  }
 
   function loadSavedData() {
     const savedListings = localStorage.getItem('feedforward_listings');
@@ -175,7 +354,7 @@ function App() {
       }
 
       setBackendStatus('Demo mode: backend is not connected');
-      setErrorMessage('Backend is not running, so demo data is being used.');
+      setErrorMessage('Backend is not connected, so demo data is being used.');
     }
 
     setLoading(false);
@@ -215,6 +394,25 @@ function App() {
     });
   }
 
+  function updatePhoto(event) {
+    const file = event.target.files[0];
+  
+    if (!file) {
+      return;
+    }
+  
+    const reader = new FileReader();
+  
+    reader.onload = function () {
+      setForm({
+        ...form,
+        photoPreview: reader.result
+      });
+    };
+  
+    reader.readAsDataURL(file);
+  }
+
   async function addListing(event) {
     event.preventDefault();
 
@@ -233,6 +431,11 @@ function App() {
 
     if (form.address.trim() === '') {
       setErrorMessage('Please enter a pickup address.');
+      return;
+    }
+
+    if (Number(form.expiresInMinutes) < 15) {
+      setErrorMessage('Expiration time must be at least 15 minutes.');
       return;
     }
 
@@ -273,7 +476,7 @@ function App() {
       const localListing = {
         id: 'local-' + Date.now(),
         title: form.title,
-        business: 'My Business',
+        business: user.name,
         description: form.description || 'No description added.',
         quantity: Number(form.quantity),
         unit: form.unit,
@@ -282,7 +485,7 @@ function App() {
         tags: tagList,
         minutesLeft: Number(form.expiresInMinutes),
         status: 'available',
-        photo: '/images/stock.jpg',
+        photo: form.photoPreview || '/images/stock.jpg',
         isDemo: true
       };
 
@@ -308,7 +511,8 @@ function App() {
       unit: 'items',
       address: '',
       tags: 'vegetarian',
-      expiresInMinutes: '120'
+      expiresInMinutes: '120',
+      photoPreview: ''
     });
   }
 function sendBrowserNotification(title, body) {
@@ -332,8 +536,11 @@ function sendBrowserNotification(title, body) {
     setClaimingId(listing.id);
 
     try {
+      let pin = '123456';
+
       if (!listing.isDemo) {
-        await api.claimListing(listing.id);
+        const result = await api.claimListing(listing.id);
+        pin = result.rawPin || result.pin || '123456';
       }
 
       const updatedListings = listings.map(function (item) {
@@ -352,7 +559,7 @@ function sendBrowserNotification(title, body) {
         title: listing.title,
         business: listing.business,
         address: listing.address,
-        pin: '123456'
+        pin: pin
       };
 
       setListings(updatedListings);
@@ -361,17 +568,21 @@ function sendBrowserNotification(title, body) {
       setNotifications([
         {
           id: 'note-' + Date.now(),
-          text: 'You claimed ' + listing.title + '. Pickup PIN: 123456.',
+          text: 'You claimed ' + listing.title + '. Pickup PIN: ' + pin + '.',
           read: false,
           isDemo: true
         },
         ...notifications
       ]);
+ browser-notifications
 sendBrowserNotification(
   'Pickup claimed',
   'Your pickup PIN for ' + listing.title + ' is 123456'
 );
-      setSuccessMessage('Pickup claimed. Demo PIN: 123456.');
+      setSuccessMessage('Pickup claimed. Demo PIN: 123456.')
+
+      setSuccessMessage('Pickup claimed. PIN: ' + pin);
+ main
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -448,10 +659,39 @@ sendBrowserNotification(
         <nav className="top-nav">
           <div className="logo">FeedForward</div>
 
-          <div className="role-switcher">
-            <button onClick={() => switchRole('volunteer')}>Volunteer</button>
-            <button onClick={() => switchRole('business')}>Business</button>
-            <button onClick={() => switchRole('recipient')}>Recipient</button>
+          <div className="nav-actions">
+            <div className="role-switcher">
+              <button
+                className={user.role === 'volunteer' ? 'volunteer-active' : ''}
+                onClick={function () {
+                  switchRole('volunteer');
+                }}
+              >
+                Volunteer
+              </button>
+
+              <button
+                className={user.role === 'business' ? 'business-active' : ''}
+                onClick={function () {
+                  switchRole('business');
+                }}
+              >
+                Business
+              </button>
+
+              <button
+                className={user.role === 'recipient' ? 'recipient-active' : ''}
+                onClick={function () {
+                  switchRole('recipient');
+                }}
+              >
+                Recipient
+              </button>
+            </div>
+
+            <button className="logout-button" onClick={logout}>
+              Log out
+            </button>
           </div>
         </nav>
 
@@ -467,7 +707,8 @@ sendBrowserNotification(
 
           <div className="hero-panel">
             <p className="muted">Signed in as</p>
-            <h2>{user.name}</h2>
+            <h2 className={`${user.role}-text`}>{user.name}</h2>
+            <p>{user.email}</p>
             <span className="badge">{user.role}</span>
           </div>
         </div>
@@ -475,6 +716,8 @@ sendBrowserNotification(
 
       <section className="content-grid">
         <div className="main-column">
+          <RoleMessage role={user.role} />
+
           <section className="status-card card">
             <div>
               <h2>Frontend status</h2>
@@ -487,17 +730,17 @@ sendBrowserNotification(
           </section>
 
           <section className="dashboard-grid">
-            <div className="stat-card">
+            <div className="stat-card rescued-card">
               <span>Pounds rescued</span>
               <strong>{poundsSaved}</strong>
             </div>
 
-            <div className="stat-card">
+            <div className="stat-card co2-card">
               <span>CO₂ diverted</span>
               <strong>{co2Saved} lbs</strong>
             </div>
 
-            <div className="stat-card">
+            <div className="stat-card claims-card">
               <span>My claims</span>
               <strong>{myClaims.length}</strong>
             </div>
@@ -508,13 +751,13 @@ sendBrowserNotification(
 
           <section className="map-placeholder card">
             <div>
-               <h2>Nearby pickup map</h2>
-               <p className="muted">
-                 Live Google Maps view of nearby food listings.
-               </p>
-           </div>
+              <h2>Nearby pickup map</h2>
+              <p className="muted">
+                Live Google Maps view of nearby food listings.
+              </p>
+            </div>
 
-            <Map />
+            <Map listings={visibleListings} />
           </section>
 
           <section className="card controls-card">
@@ -544,6 +787,7 @@ sendBrowserNotification(
                   <option value="vegetarian">Vegetarian</option>
                   <option value="vegan">Vegan</option>
                   <option value="gluten-free">Gluten-free</option>
+                  <option value="halal">Halal</option>
                 </select>
               </label>
 
@@ -581,6 +825,7 @@ sendBrowserNotification(
                 {visibleListings.map(function (listing) {
                   const isClaiming = claimingId === listing.id;
                   const isClaimed = listing.status === 'claimed';
+                  const canClaim = user.role === 'volunteer';
 
                   return (
                     <article className="card listing-card" key={listing.id}>
@@ -607,7 +852,7 @@ sendBrowserNotification(
                         <div className="tag-row">
                           {listing.tags.map(function (tag) {
                             return (
-                              <span className="tag" key={tag}>
+                              <span className={`tag ${tag}`} key={tag}>
                                 {tag}
                               </span>
                             );
@@ -628,6 +873,7 @@ sendBrowserNotification(
 
                         <p className="address">📍 {listing.address}</p>
 
+ browser-notifications
                         <button
                           className="primary-button"
                           disabled={isClaimed || isClaiming}
@@ -647,6 +893,28 @@ sendBrowserNotification(
                               ? 'Already claimed'
                               : 'Claim pickup'}
                         </button>
+                        {user.role === 'business' ? (
+                          <p className="role-note">
+                            Businesses can post listings from the form.
+                          </p>
+                        ) : (
+                          <button
+                            className="primary-button"
+                            disabled={!canClaim || isClaimed || isClaiming}
+                            onClick={function () {
+                              claimListing(listing);
+                            }}
+                          >
+                            {isClaiming
+                              ? 'Claiming...'
+                              : isClaimed
+                                ? 'Already claimed'
+                                : canClaim
+                                  ? 'Claim pickup'
+                                  : 'Volunteer only'}
+                          </button>
+                        )}
+ main
                       </div>
                     </article>
                   );
@@ -657,111 +925,132 @@ sendBrowserNotification(
         </div>
 
         <aside className="side-column">
-          <section className="card form-card">
-            <h2>Post extra food</h2>
-            <p className="muted">Businesses can add a new food donation here.</p>
+          {user.role === 'business' && (
+            <section className="card form-card">
+              <h2>Post extra food</h2>
+              <p className="muted">Businesses can add a new food donation here.</p>
 
-            <form onSubmit={addListing}>
-              <label>
-                Food title
-                <input
-                  name="title"
-                  value={form.title}
-                  onChange={updateForm}
-                  placeholder="Example: Sandwich trays"
-                />
-              </label>
-
-              <label>
-                Description
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={updateForm}
-                  placeholder="Describe the food."
-                />
-              </label>
-
-              <div className="two-column-form">
+              <form onSubmit={addListing}>
                 <label>
-                  Quantity
+                  Food title
                   <input
-                    name="quantity"
-                    type="number"
-                    min="1"
-                    value={form.quantity}
+                    name="title"
+                    value={form.title}
                     onChange={updateForm}
+                    placeholder="Example: Sandwich trays"
                   />
                 </label>
 
                 <label>
-                  Unit
-                  <select name="unit" value={form.unit} onChange={updateForm}>
-                    <option value="items">items</option>
-                    <option value="servings">servings</option>
-                    <option value="boxes">boxes</option>
-                    <option value="lbs">lbs</option>
-                  </select>
+                  Description
+                  <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={updateForm}
+                    placeholder="Describe the food."
+                  />
                 </label>
-              </div>
 
-              <label>
-                Pickup address
-                <input
-                  name="address"
-                  value={form.address}
-                  onChange={updateForm}
-                  placeholder="Example: 10 Market Street"
-                />
-              </label>
+                <div className="two-column-form">
+                  <label>
+                    Quantity
+                    <input
+                      name="quantity"
+                      type="number"
+                      min="1"
+                      value={form.quantity}
+                      onChange={updateForm}
+                    />
+                  </label>
 
-              <label>
-                Dietary tags
-                <input
-                  name="tags"
-                  value={form.tags}
-                  onChange={updateForm}
-                  placeholder="Example: vegan, vegetarian"
-                />
-              </label>
+                  <label>
+                    Unit
+                    <select name="unit" value={form.unit} onChange={updateForm}>
+                      <option value="items">items</option>
+                      <option value="servings">servings</option>
+                      <option value="boxes">boxes</option>
+                      <option value="lbs">lbs</option>
+                    </select>
+                  </label>
+                </div>
 
-              <label>
-                Expires in minutes
-                <input
-                  name="expiresInMinutes"
-                  type="number"
-                  min="15"
-                  value={form.expiresInMinutes}
-                  onChange={updateForm}
-                />
-              </label>
+                <label>
+                  Pickup address
+                  <input
+                    name="address"
+                    value={form.address}
+                    onChange={updateForm}
+                    placeholder="Example: 10 Market Street"
+                  />
+                </label>
 
-              <button className="primary-button" type="submit">
-                Add listing
-              </button>
-            </form>
-          </section>
+                <label>
+                  Dietary tags
+                  <input
+                    name="tags"
+                    value={form.tags}
+                    onChange={updateForm}
+                    placeholder="Example: vegan, vegetarian"
+                  />
+                </label>
 
-          <section className="card">
-            <h2>My Claims</h2>
+                <label>
+                  Food photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={updatePhoto}
+                  />
+                </label>
 
-            {myClaims.length === 0 ? (
-              <p className="muted">You have not claimed any pickups yet.</p>
-            ) : (
-              <div className="claim-list">
-                {myClaims.map(function (claim) {
-                  return (
-                    <div className="claim-item" key={claim.id}>
-                      <strong>{claim.title}</strong>
-                      <p>{claim.business}</p>
-                      <p>{claim.address}</p>
-                      <p>Pickup PIN: {claim.pin}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+                {form.photoPreview && (
+                  <img
+                    className="photo-preview"
+                    src={form.photoPreview}
+                    alt="Food preview"
+                  />
+                )}
+
+                <label>
+                  Expires in minutes
+                  <input
+                    name="expiresInMinutes"
+                    type="number"
+                    min="15"
+                    value={form.expiresInMinutes}
+                    onChange={updateForm}
+                  />
+                </label>
+
+                <button className="primary-button" type="submit">
+                  Add listing
+                </button>
+              </form>
+            </section>
+          )}
+
+          {user.role === 'volunteer' && (
+            <section className="card">
+              <h2>My Claims</h2>
+
+              {myClaims.length === 0 ? (
+                <p className="muted">You have not claimed any pickups yet.</p>
+              ) : (
+                <div className="claim-list">
+                  {myClaims.map(function (claim) {
+                    return (
+                      <div className="claim-item" key={claim.id}>
+                        <strong>{claim.title}</strong>
+                        <p>{claim.business}</p>
+                        <p>{claim.address}</p>
+                        <p>Pickup PIN: {claim.pin}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          )}
 
           <section className="card">
             <h2>Notifications</h2>
@@ -794,6 +1083,15 @@ sendBrowserNotification(
               </ul>
             )}
           </section>
+
+          {user.role === 'recipient' && (
+            <section className="card recipient-info">
+              <h2>Recipient help</h2>
+              <p>
+                Recipients can view food listings and notifications when donations are available nearby.
+              </p>
+            </section>
+          )}
         </aside>
       </section>
     </main>

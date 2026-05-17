@@ -1,12 +1,21 @@
+@font-face {
+  font-family: 'Hobo';
+  src:url('/images/Hobo.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'CooperBT';
+  src:url('/images/CooperBT.ttf') format('truetype');
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: #f6f7f2;
+  background: #f4ecd8;
   color: #173b2f;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'CooperBT', sans-serif;
 }
 
 button,
@@ -36,8 +45,11 @@ main {
 }
 
 .logo {
-  font-size: 28px;
+  font-family: 'Hobo', sans-serif;
+  font-size: 50px;
   font-weight: bold;
+  letter-spacing: 1px;
+  color:#f1ead1;
 }
 
 .role-switcher {
@@ -51,10 +63,21 @@ main {
   border-radius: 999px;
   padding: 8px 12px;
   cursor: pointer;
-  background: white;
+  background: #f6ebcf;
   color: #24543c;
   font-weight: bold;
 }
+.role-switcher .volunteer-active{
+  border: 4px solid #4caf50;
+
+}
+.role-switcher .business-active{
+  border: 4px solid #2563eb;
+}
+.role-switcher .recipient-active{
+  border: 4px solid #f4a261;
+}
+
 
 .hero-content {
   max-width: 1200px;
@@ -66,17 +89,22 @@ main {
 }
 
 .hero h1 {
+  font-family: 'CooperBT', serif;
   font-size: 48px;
   margin: 8px 0;
   line-height: 1.05;
 }
 
 .hero p {
+  font-family: 'CooperBT', serif;
+  font-size: 48px;
+  color:#efbd40;
   font-size: 18px;
   line-height: 1.5;
 }
 
 .eyebrow {
+  color:#f2c14e;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-size: 13px;
@@ -136,6 +164,20 @@ main {
   border-radius: 22px;
   padding: 20px;
   box-shadow: 0 10px 30px rgba(23, 59, 47, 0.08);
+}
+.rescued-card {
+  border-top: 4px solid #4caf50;
+  background: #f3fff3;
+}
+
+.co2-card {
+  border-top: 4px solid #2563eb;
+  background: #f5f9ff;
+}
+
+.claims-card {
+  border-top: 4px solid #e76f51;
+  background: #fff6f2;
 }
 
 .stat-card span {
@@ -253,7 +295,7 @@ main {
   width: 100%;
   height: 100%;
   min-height: 180px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 18px;
 }
 
@@ -301,7 +343,24 @@ main {
   padding: 6px 9px;
   font-size: 13px;
 }
+.tag.vegetarian {
+  background: #dff3e4;
+  color: #1b7a4b;
+}
 
+.tag.vegan {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.tag.gluten-free {
+  background: #ffe1d9;
+  color: #e76f51;
+}
+.tag.halal {
+  background: #ffe1d9;
+  color: #9b2424;
+}
 .listing-facts {
   display: flex;
   flex-wrap: wrap;
@@ -472,4 +531,144 @@ textarea {
   .section-heading {
     display: grid;
   }
+}
+.volunteer-text{
+  color:#8fe39a;
+}
+.business-text{
+  color:#004ead;
+}
+.recipient-text{
+  color:#f4b36a;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #24543c, #5f8f4e);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 460px;
+  background: white;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+.login-card h1 {
+  font-family: 'Hobo', sans-serif;
+  font-size: 48px;
+  color: #24543c;
+  margin: 0 0 8px;
+}
+
+.login-card form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.demo-login-buttons {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.demo-login-buttons button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: #f6ebcf;
+  color: #24543c;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.demo-login-buttons button:hover {
+  background: #f2c14e;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.logout-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #fff0f0;
+  color: #9b2424;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background: #ffdcdc;
+}
+
+.role-message {
+  border-left: 8px solid #5f8f4e;
+}
+
+.business-message {
+  border-left-color: #2563eb;
+}
+
+.volunteer-message {
+  border-left-color: #4caf50;
+}
+
+.recipient-message {
+  border-left-color: #f4a261;
+}
+
+.role-note {
+  color: #607469;
+  font-weight: bold;
+}
+
+.recipient-info {
+  background: #fff7e8;
+}
+
+.map-fallback {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: center;
+  width: 100%;
+}
+
+.map-fallback-text {
+  background: #f8fbf5;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+@media (max-width: 850px) {
+  .map-fallback {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.photo-preview {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid #d9e2d4;
 }

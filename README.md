@@ -1,7 +1,7 @@
 
 # FeedForward
 
-FeedForward is a web platform that aims to connect local food businesses with volunteers, shelters, and community recipients to reduce food waste and support those in need[cite: 19]. [cite_start]It bridges the gap between available surplus food and the people who need it most by replacing inconsistent, informal community networks with a streamlined redistribution system.
+FeedForward is a web platform that aims to connect local food businesses with volunteers, shelters, and community recipients to reduce food waste and support those in need. It bridges the gap between available surplus food and the people who need it most by replacing inconsistent, informal community networks with a streamlined redistribution system.
 
 ### Group Members
 * Normand Boris Manzi

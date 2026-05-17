@@ -1,9 +1,12 @@
 const API_URL = 'https://feedforward-backend-2snz.onrender.com/api';
 
+let currentRole = 'business'; 
+
 async function request(path, options = {}) {
   const response = await fetch(API_URL + path, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'x-user-role': currentRole 
     },
     ...options
   });
@@ -25,6 +28,11 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  // 4. A new function so App.jsx can change the role
+  setRole(role) {
+    currentRole = role;
+  },
+
   getListings() {
     return request('/listings');
   },
