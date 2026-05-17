@@ -515,21 +515,7 @@ function App() {
       photoPreview: ''
     });
   }
-function sendBrowserNotification(title, body) {
-  if (!('Notification' in window)) {
-    return;
-  }
 
-  if (Notification.permission === 'granted') {
-    new Notification(title, { body });
-  } else if (Notification.permission !== 'denied') {
-    Notification.requestPermission().then(function (permission) {
-      if (permission === 'granted') {
-        new Notification(title, { body });
-      }
-    });
-  }
-}
   async function claimListing(listing) {
     setSuccessMessage('');
     setErrorMessage('');
@@ -574,15 +560,8 @@ function sendBrowserNotification(title, body) {
         },
         ...notifications
       ]);
- browser-notifications
-sendBrowserNotification(
-  'Pickup claimed',
-  'Your pickup PIN for ' + listing.title + ' is 123456'
-);
-      setSuccessMessage('Pickup claimed. Demo PIN: 123456.')
 
       setSuccessMessage('Pickup claimed. PIN: ' + pin);
- main
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -873,26 +852,6 @@ sendBrowserNotification(
 
                         <p className="address">📍 {listing.address}</p>
 
- browser-notifications
-                        <button
-                          className="primary-button"
-                          disabled={isClaimed || isClaiming}
-                          onClick={function () {
-  const confirmed = window.confirm(
-    'Are you sure you want to claim this pickup?'
-  );
-
-  if (confirmed) {
-    claimListing(listing);
-  }
-}}
-                        >
-                          {isClaiming
-                            ? 'Claiming...'
-                            : isClaimed
-                              ? 'Already claimed'
-                              : 'Claim pickup'}
-                        </button>
                         {user.role === 'business' ? (
                           <p className="role-note">
                             Businesses can post listings from the form.
@@ -914,7 +873,6 @@ sendBrowserNotification(
                                   : 'Volunteer only'}
                           </button>
                         )}
- main
                       </div>
                     </article>
                   );
