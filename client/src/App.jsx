@@ -632,8 +632,14 @@ sendBrowserNotification(
                           className="primary-button"
                           disabled={isClaimed || isClaiming}
                           onClick={function () {
-                            claimListing(listing);
-                          }}
+  const confirmed = window.confirm(
+    'Are you sure you want to claim this pickup?'
+  );
+
+  if (confirmed) {
+    claimListing(listing);
+  }
+}}
                         >
                           {isClaiming
                             ? 'Claiming...'
