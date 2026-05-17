@@ -311,7 +311,21 @@ function App() {
       expiresInMinutes: '120'
     });
   }
+function sendBrowserNotification(title, body) {
+  if (!('Notification' in window)) {
+    return;
+  }
 
+  if (Notification.permission === 'granted') {
+    new Notification(title, { body });
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission().then(function (permission) {
+      if (permission === 'granted') {
+        new Notification(title, { body });
+      }
+    });
+  }
+}
   async function claimListing(listing) {
     setSuccessMessage('');
     setErrorMessage('');
@@ -353,7 +367,10 @@ function App() {
         },
         ...notifications
       ]);
-
+sendBrowserNotification(
+  'Pickup claimed',
+  'Your pickup PIN for ' + listing.title + ' is 123456'
+);
       setSuccessMessage('Pickup claimed. Demo PIN: 123456.');
     } catch (error) {
       setErrorMessage(error.message);
