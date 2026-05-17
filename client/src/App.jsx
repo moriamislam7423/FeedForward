@@ -6,47 +6,77 @@ import { api } from './services/api.js';
 const demoListings = [
   {
     id: 'demo-1',
-    title: 'Fresh Bagels and Muffins',
-    business: 'Sunrise Cafe',
-    description: 'Assorted bagels, muffins, and rolls made fresh today.',
+    title: 'Fresh Sandwiches and Protein Boxes',
+    business: 'Joe & The Juice',
+    description: "Extra sandwiches, wraps, muffins, and protein snack boxes from today's lunch rush.",
     quantity: 24,
     unit: 'items',
-    address: '120 Main Street',
+    address: '993 Lexington Avenue, New York, NY',
     distance: 0.7,
-    tags: ['vegetarian'],
+    tags: ['vegetarian', 'vegan'],
     minutesLeft: 95,
     status: 'available',
-    photo: '/images/bakery.jpg',
+    photo: '/images/joejuice.png',
     isDemo: true
   },
   {
     id: 'demo-2',
-    title: 'Healthy Salad Bowls',
-    business: 'Green Market Deli',
-    description: 'Vegetable bowls packed in individual containers.',
-    quantity: 15,
+    title: 'Donuts and Breakfast Sandwiches',
+    business: 'Dunkin Donuts',
+    description: 'Assorted donuts, hash browns, and breakfast sandwiches.',
+    quantity: 20,
     unit: 'servings',
-    address: '88 Oak Avenue',
-    distance: 1.3,
-    tags: ['vegan', 'gluten-free'],
+    address: '882 Lexington Ave, New York, NY',
+    distance: 0.3,
+    tags: ['vegetarian'],
     minutesLeft: 140,
     status: 'available',
-    photo: '/images/veggie-bowl.jpg',
+    photo: '/images/dunkin.png',
     isDemo: true
   },
   {
     id: 'demo-3',
     title: 'Produce Boxes',
-    business: 'Neighborhood Grocery',
-    description: 'Mixed produce boxes with apples, lettuce, carrots, and tomatoes.',
-    quantity: 8,
+    business: 'Whole Foods Market',
+    description: 'Mixed produce boxes with apples, lettuce, carrots, and more.',
+    quantity: 18,
     unit: 'boxes',
-    address: '45 Pine Road',
-    distance: 2.1,
-    tags: ['vegan', 'vegetarian'],
+    address: '1551 3rd Ave, New York, NY',
+    distance: 1.2,
+    tags: ['vegan', 'vegetarian','gluten-free'],
     minutesLeft: 210,
     status: 'available',
-    photo: '/images/produce.jpg',
+    photo: '/images/whole.png',
+    isDemo: true
+  },
+  {
+    id: 'demo-4',
+    title: 'Halal Platters',
+    business: "Shah's Halal Food",
+    description: "Extra chicken or lamb over rice platters with fries and salad from today’s dinner rush.",
+    quantity: 22,
+    unit: 'boxes',
+    address: '1279 1st Avenue, New York, NY',
+    distance: 1.9,
+    tags: ['halal'],
+    minutesLeft: 60,
+    status: 'available',
+    photo: '/images/shah.jpg',
+    isDemo: true
+  },
+  {
+    id: 'demo-5',
+    title: 'Assorted Pizza Slices',
+    business: 'Dominos',
+    description: "Extra pizza boxes available after tonight’s dinner rush.",
+    quantity: 22,
+    unit: 'boxes',
+    address: '1396 1st Avenue, New York, NY',
+    distance: 0.6,
+    tags: ['gluten-free'],
+    minutesLeft: 50,
+    status: 'available',
+    photo: '/images/dominos.png',
     isDemo: true
   }
 ];
@@ -736,6 +766,7 @@ function App() {
                   <option value="vegetarian">Vegetarian</option>
                   <option value="vegan">Vegan</option>
                   <option value="gluten-free">Gluten-free</option>
+                  <option value="halal">Halal</option>
                 </select>
               </label>
 
