@@ -295,7 +295,7 @@ main {
   width: 100%;
   height: 100%;
   min-height: 180px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 18px;
 }
 
@@ -357,7 +357,10 @@ main {
   background: #ffe1d9;
   color: #e76f51;
 }
-
+.tag.halal {
+  background: #ffe1d9;
+  color: #9b2424;
+}
 .listing-facts {
   display: flex;
   flex-wrap: wrap;
