@@ -17,7 +17,6 @@ body {
   color: #173b2f;
   font-family: 'CooperBT', sans-serif;
 }
-
 button,
 input,
 textarea,
@@ -93,12 +92,15 @@ main {
   font-size: 48px;
   margin: 8px 0;
   line-height: 1.05;
+  color: #f4ead8;
+  max-width: 760px;
+  font-style: normal;
 }
 
 .hero p {
   font-family: 'CooperBT', serif;
   font-size: 48px;
-  color:#efbd40;
+  color: #f2c14e;
   font-size: 18px;
   line-height: 1.5;
 }
@@ -776,4 +778,73 @@ textarea {
   .footer {
     padding: 50px 24px 24px;
   }
+}
+.impact-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  border-top: 2px solid #d8c799;
+}
+
+.impact-stat {
+  text-align: center;
+}
+
+.impact-stat strong {
+  display: block;
+  font-size: 3.5rem;
+  color: #4b6f44;
+  line-height: 1;
+}
+
+.impact-stat span {
+  display: block;
+  margin-top: 12px;
+  color: #5c3d1e;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .impact-stats {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+.browse-header {
+  text-align: center;
+  margin: 40px auto 50px;
+  padding: 0 24px;
+}
+
+.browse-label {
+  color: #4a2c17;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.browse-header h2 {
+  color: #173b2f;
+  font-size: 48px;
+  margin: 0;
+  line-height: 1.1;
+  font-family: 'CooperBT', serif;
+}
+
+.browse-header h2 span {
+  color: #5f8f4e;
+  font-style: italic;
+}
+
+.browse-subtitle {
+  color: #4b6f44;
+  font-size: 18px;
+  margin-top: 14px;
 }
