@@ -299,6 +299,11 @@ function App() {
   const [claimingId, setClaimingId] = useState('');
   const [backendStatus, setBackendStatus] = useState('Checking backend...');
   const [successMessage, setSuccessMessage] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
+
+const unreadCount = notifications.filter(function (note) {
+  return !note.read;
+}).length;
   const [errorMessage, setErrorMessage] = useState('');
 
   const [form, setForm] = useState({
@@ -581,6 +586,14 @@ function App() {
         },
         ...notifications
       ]);
+sendBrowserNotification(
+  'Pickup claimed',
+  'Your pickup PIN for ' + listing.title + ' is 123456'
+);
+      setSuccessMessage('Pickup claimed. Demo PIN: 123456.')
+
+      setSuccessMessage('Pickup claimed. PIN: ' + pin);
+ 
 
       setSuccessMessage('Pickup claimed. PIN: ' + pin);
     } catch (error) {
@@ -690,9 +703,58 @@ function App() {
               </button>
             </div>
 
-            <button className="logout-button" onClick={logout}>
-              Log out
-            </button>
+           <div className="notification-wrapper">
+  <button
+    className="notification-bell"
+    onClick={function () {
+      setShowNotifications(!showNotifications);
+    }}
+  >
+    🔔
+
+    {unreadCount > 0 && (
+      <span className="notification-count">
+        {unreadCount}
+      </span>
+    )}
+  </button>
+
+  {showNotifications && (
+    <div className="notification-dropdown">
+      <h3>Notifications</h3>
+
+      {notifications.length === 0 ? (
+        <p className="muted">No notifications yet.</p>
+      ) : (
+        notifications.map(function (note) {
+          return (
+            <div
+              className={note.read ? 'dropdown-note read' : 'dropdown-note'}
+              key={note.id}
+            >
+              <p>{note.text}</p>
+
+              {!note.read && (
+                <button
+                  className="small-button"
+                  onClick={function () {
+                    markNotificationRead(note.id);
+                  }}
+                >
+                  Mark read
+                </button>
+              )}
+            </div>
+          );
+        })
+      )}
+    </div>
+  )}
+
+  <button className="logout-button" onClick={logout}>
+    Log out
+  </button>
+</div>
           </div>
         </nav>
 
@@ -1017,6 +1079,8 @@ function App() {
 
                         <p className="address">📍 {listing.address}</p>
 
+ 
+                          
                         {user.role === 'business' ? (
                           <p className="role-note">
                             Businesses can post listings from the form.
@@ -1026,8 +1090,14 @@ function App() {
                             className="primary-button"
                             disabled={!canClaim || isClaimed || isClaiming}
                             onClick={function () {
-                              claimListing(listing);
-                            }}
+  const confirmed = window.confirm(
+    'Are you sure you want to claim this pickup?'
+  );
+
+  if (confirmed) {
+    claimListing(listing);
+  }
+}}
                           >
                             {isClaiming
                               ? 'Claiming...'
@@ -1038,6 +1108,7 @@ function App() {
                                   : 'Volunteer only'}
                           </button>
                         )}
+ 
                       </div>
                     </article>
                   );
