@@ -147,6 +147,12 @@ function LoginScreen() {
       setError('Please enter your email.');
       return;
     }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+if (!emailPattern.test(email)) {
+  setError('Please enter a valid email address.');
+  return;
+}
 
     login(name, email, role);
   }
