@@ -714,7 +714,22 @@ function App() {
           </div>
         </div>
       </section>
+      <section className="impact-stats">
+        <div className="impact-stat">
+          <strong>10.5K</strong>
+          <span>Meals Shared</span>
+        </div>
 
+        <div className="impact-stat">
+          <strong>750+</strong>
+          <span>Active Donors</span>
+        </div>
+
+        <div className="impact-stat">
+          <strong>50</strong>
+          <span>Local Partners</span>
+        </div>
+      </section>
       <section className="content-grid">
         <div className="main-column">
           <RoleMessage role={user.role} />
@@ -927,6 +942,16 @@ function App() {
 
           {user.role !== 'business' && (
           <section>
+            <div className="browse-header">
+              <p className="browse-label">Available Now</p>
+              <h2>
+                 Food Near You
+              </h2>
+              <p className="browse-subtitle">
+                Fresh listings from local businesses and restaurants in your area.
+              </p>
+            </div>
+
             <div className="section-heading">
               <h2>Available food listings</h2>
               <p className="muted">{visibleListings.length} listing(s) found</p>
