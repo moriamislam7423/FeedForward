@@ -371,21 +371,16 @@ const unreadCount = notifications.filter(function (note) {
       const listingArray = Array.isArray(data) ? data : data.listings || [];
       const cleanListings = listingArray.map(cleanBackendListing);
 
-      if (cleanListings.length > 0) {
-        setListings(cleanListings);
-      } else {
-        setListings(demoListings);
-      }
+      // MIX BOTH ARRAYS TOGETHER
+      setListings([...cleanListings, ...demoListings]);
 
       setBackendStatus('Backend connected');
     } catch {
       const savedListings = localStorage.getItem('feedforward_listings');
+      const localListings = savedListings ? JSON.parse(savedListings) : [];
 
-      if (savedListings) {
-        setListings(JSON.parse(savedListings));
-      } else {
-        setListings(demoListings);
-      }
+      // MIX BOTH ARRAYS TOGETHER FOR DEMO MODE
+      setListings([...localListings, ...demoListings]);
 
       setBackendStatus('Demo mode: backend is not connected');
       setErrorMessage('Backend is not connected, so demo data is being used.');
