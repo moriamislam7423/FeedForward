@@ -259,11 +259,32 @@ function RoleMessage({ role }) {
     <section className="card role-message recipient-message">
       <h2>Recipient view</h2>
       <p>
-        Recipients can view nearby food listings and receive donation notifications.
+        Recipients can track incoming food donations and delivery updates.
       </p>
     </section>
   );
 }
+function getRoleNotifications(role){
+  if (role  === 'business'){
+    return [
+      'Your food listing is live and visible to nearby volunteers.',
+      'A volunteer can claim your donation once it is available.',
+      'Remember to update pickup details if anything changes.'
+    ];
+  }
+  if (role  === 'volunteer'){
+    return [
+      'New nearby donations are available for pickup.',
+      'Claim a listing to receive a pickup PIN.',
+      'After pickup, deliver the donation to the assigned shelter.'
+    ];
+  }
+    return [
+    'Incoming delivery from Whole Foods Market. ETA: 15 minutes.',
+    'Joe & The Juice donation is currently being delivered.',
+    'You will receive an update when the volunteer completes the drop-off.'
+    ];
+  }
 
 function App() {
   const { user, logout, switchRole } = useAuth();
@@ -520,21 +541,7 @@ const unreadCount = notifications.filter(function (note) {
       photoPreview: ''
     });
   }
-function sendBrowserNotification(title, body) {
-  if (!('Notification' in window)) {
-    return;
-  }
 
-  if (Notification.permission === 'granted') {
-    new Notification(title, { body });
-  } else if (Notification.permission !== 'denied') {
-    Notification.requestPermission().then(function (permission) {
-      if (permission === 'granted') {
-        new Notification(title, { body });
-      }
-    });
-  }
-}
   async function claimListing(listing) {
     setSuccessMessage('');
     setErrorMessage('');
@@ -587,6 +594,8 @@ sendBrowserNotification(
 
       setSuccessMessage('Pickup claimed. PIN: ' + pin);
  
+
+      setSuccessMessage('Pickup claimed. PIN: ' + pin);
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -656,6 +665,7 @@ sendBrowserNotification(
 
   const poundsSaved = claimedListings.length * 5;
   const co2Saved = poundsSaved * 2.5;
+  const RoleNotifications = getRoleNotifications(user.role);
 
   return (
     <main>
@@ -766,10 +776,93 @@ sendBrowserNotification(
           </div>
         </div>
       </section>
+      <section className="impact-stats">
+        <div className="impact-stat">
+          <strong>10.5K</strong>
+          <span>Meals Shared</span>
+        </div>
 
+        <div className="impact-stat">
+          <strong>750+</strong>
+          <span>Active Donors</span>
+        </div>
+
+        <div className="impact-stat">
+          <strong>50</strong>
+          <span>Local Partners</span>
+        </div>
+      </section>
       <section className="content-grid">
         <div className="main-column">
           <RoleMessage role={user.role} />
+          {user.role === 'business' &&(
+            <section className = "card">
+             <h2>Business Dashboard</h2>
+             <p className="muted">
+                Manage food donations, monitor active listings, and help reduce food waste across New York City.
+              </p>
+
+              <div className="listing-facts">
+                <span>
+                  <strong>{listings.length}</strong> active listings
+                </span>
+
+                <span>
+                  <strong>{claimedListings.length}</strong> claimed pickups
+                </span>
+              </div>
+              <div className="claim-item">
+              <strong>Fresh Sandwiches and Protein Boxes</strong>
+              <p>Status: Available for pickup</p>
+            </div>
+
+            <div className="claim-item">
+              <strong>Produce Boxes</strong>
+              <p>Status: Claimed by volunteer</p>
+            </div>
+            </section>
+          )}
+
+          {user.role === 'volunteer' &&(
+            <section className = "card">
+             <h2>Volunteer Impact</h2>
+             <p className="muted">
+                Track your contributions to help reduce food waste across New York City.
+              </p>
+
+              <div className="listing-facts">
+                <span>
+                  <strong>{myClaims.length}</strong> completed pickups
+                </span>
+
+                <span>
+                  <strong>{poundsSaved}</strong> lbs rescued
+                </span>
+
+                <span>
+                  <strong>{co2Saved}</strong> lbs CO₂ saved
+                </span>
+              </div>
+            </section>
+          )}
+
+          {user.role === 'recipient' &&(
+            <section className = "card recipient-info">
+              <h2>Incoming Deliveries</h2>
+              <div className="claim-list">
+                <div className="claim-item">
+                  <strong>Whole Foods Market</strong>
+                  <p>Prepared food containers arriving soon. </p>
+                  <p>ETA: 15 minutes </p>
+                </div>
+                  <div className="claim-item">
+                    <strong>Joe & The Juice</strong>
+                    <p>Sandwiches and protein boxes are currently being delivered.</p>
+                    <p>ETA: 25 minutes</p>
+                  </div>
+              </div>
+            </section>
+          )}
 
           <section className="status-card card">
             <div>
@@ -798,11 +891,58 @@ sendBrowserNotification(
               <strong>{myClaims.length}</strong>
             </div>
           </section>
+          <section className="card">
+            <h2>Quick Actions</h2>
+
+            <div className="claim-list">
+              {user.role === 'business' && (
+                <>
+                  <div className="claim-item">
+                    <strong>Create New Donation</strong>
+                    <p>Post extra food before it expires.</p>
+                  </div>
+
+                  <div className="claim-item">
+                    <strong>Monitor Pickup Activity</strong>
+                    <p>Track volunteer claims and delivery progress.</p>
+                  </div>
+                </>
+              )}
+              {user.role === 'volunteer' && (
+                <>
+                  <div className="claim-item">
+                    <strong>Find Nearby Pickups</strong>
+                    <p>Search available donations around your area.</p>
+                  </div>
+
+                  <div className="claim-item">
+                    <strong>Track Pickup PINs</strong>
+                    <p>View your active pickup confirmations.</p>
+                  </div>
+                </>
+              )}
+
+              {user.role === 'recipient' && (
+                <>
+                  <div className="claim-item">
+                    <strong>Track Deliveries</strong>
+                    <p>Monitor incoming food donations in real time.</p>
+                  </div>
+
+                  <div className="claim-item">
+                    <strong>View Delivery Updates</strong>
+                    <p>See estimated arrival times from volunteers.</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
 
           {successMessage && <p className="alert success">{successMessage}</p>}
           {errorMessage && <p className="alert error">{errorMessage}</p>}
 
-          <section className="map-placeholder card">
+          {user.role === 'volunteer' && (
+            <section className="map-placeholder card">
             <div>
               <h2>Nearby pickup map</h2>
               <p className="muted">
@@ -812,7 +952,8 @@ sendBrowserNotification(
 
             <Map listings={visibleListings} />
           </section>
-
+          )}
+          {user.role !== 'business' && (
           <section className="card controls-card">
             <h2>Find food</h2>
 
@@ -859,8 +1000,20 @@ sendBrowserNotification(
               </label>
             </div>
           </section>
+          )}
 
+          {user.role !== 'business' && (
           <section>
+            <div className="browse-header">
+              <p className="browse-label">Available Now</p>
+              <h2>
+                 Food Near You
+              </h2>
+              <p className="browse-subtitle">
+                Fresh listings from local businesses and restaurants in your area.
+              </p>
+            </div>
+
             <div className="section-heading">
               <h2>Available food listings</h2>
               <p className="muted">{visibleListings.length} listing(s) found</p>
@@ -963,8 +1116,9 @@ sendBrowserNotification(
               </div>
             )}
           </section>
+        )}
         </div>
-
+        
         <aside className="side-column">
           {user.role === 'business' && (
             <section className="card form-card">
@@ -1096,10 +1250,14 @@ sendBrowserNotification(
           <section className="card">
             <h2>Notifications</h2>
 
-            {notifications.length === 0 ? (
-              <p className="muted">No notifications yet.</p>
-            ) : (
               <ul className="notification-list">
+                {RoleNotifications.map(function(message,index){
+                  return(
+                    <li className="notification-item" key={'role-note-' + index}>
+                      <span>{message}</span>
+                    </li>
+                  );
+                })}
                 {notifications.map(function (note) {
                   return (
                     <li
@@ -1122,7 +1280,6 @@ sendBrowserNotification(
                   );
                 })}
               </ul>
-            )}
           </section>
 
           {user.role === 'recipient' && (
@@ -1133,10 +1290,51 @@ sendBrowserNotification(
               </p>
             </section>
           )}
+        
         </aside>
       </section>
-    </main>
+      <footer className="footer">
+        <div className="footer-grid">
+          <div className="footer-brand">
+            <h2>🌱 FeedForward</h2>
+            <p>
+              Connecting businesses, volunteers, and shelters to reduce
+              food waste and support local communities.
+            </p>
+          </div>
+
+          <div className="footer-column">
+            <h4>Platform</h4>
+            <p>Volunteer</p>
+            <p>Business</p>
+            <p>Recipient</p>
+            <p>Dashboard</p>
+          </div>
+
+          <div className="footer-column">
+            <h4>Features</h4>
+            <p>Food Listings</p>
+            <p>Pickup Tracking</p>
+            <p>Notifications</p>
+            <p>Delivery Updates</p>
+          </div>
+
+          <div className="footer-column">
+            <h4>About</h4>
+            <p>Our Mission</p>
+            <p>Community Impact</p>
+            <p>Support</p>
+            <p>Contact</p>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p>© 2026 FeedForward. Built to fight food waste.</p>
+        </div>
+      </footer>
+      </main>
   );
 }
+
 
 export default App;
