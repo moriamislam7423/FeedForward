@@ -1194,9 +1194,49 @@ function App() {
               </p>
             </section>
           )}
+        
         </aside>
       </section>
-    </main>
+      <footer className="footer">
+        <div className="footer-grid">
+          <div className="footer-brand">
+            <h2>🌱 FeedForward</h2>
+            <p>
+              Connecting businesses, volunteers, and shelters to reduce
+              food waste and support local communities.
+            </p>
+          </div>
+
+          <div className="footer-column">
+            <h4>Platform</h4>
+            <p>Volunteer</p>
+            <p>Business</p>
+            <p>Recipient</p>
+            <p>Dashboard</p>
+          </div>
+
+          <div className="footer-column">
+            <h4>Features</h4>
+            <p>Food Listings</p>
+            <p>Pickup Tracking</p>
+            <p>Notifications</p>
+            <p>Delivery Updates</p>
+          </div>
+
+          <div className="footer-column">
+            <h4>About</h4>
+            <p>Our Mission</p>
+            <p>Community Impact</p>
+            <p>Support</p>
+            <p>Contact</p>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p>© 2026 FeedForward. Built to fight food waste.</p>
+        </div>
+      </footer>
+      </main>
   );
 }
 
