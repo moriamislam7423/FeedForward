@@ -491,7 +491,7 @@ const unreadCount = notifications.filter(function (note) {
         type: 'Point',
         coordinates: [-73.9857, 40.7484]
       },
-      photos: []
+      photos: form.photoPreview ? [form.photoPreview] : []
     };
 
     try {
