@@ -541,7 +541,7 @@ function sendBrowserNotification(title, body) {
     setClaimingId(listing.id);
 
     try {
-      let pin = '123456';
+      let pin = Math.floor(100000 + Math.random() * 900000).toString();
 
       if (!listing.isDemo) {
         const result = await api.claimListing(listing.id);
@@ -581,9 +581,9 @@ function sendBrowserNotification(title, body) {
       ]);
 sendBrowserNotification(
   'Pickup claimed',
-  'Your pickup PIN for ' + listing.title + ' is 123456'
+  'Your pickup PIN for ' + listing.title + ' is ' + pin
 );
-      setSuccessMessage('Pickup claimed. Demo PIN: 123456.')
+      
 
       setSuccessMessage('Pickup claimed. PIN: ' + pin);
  
