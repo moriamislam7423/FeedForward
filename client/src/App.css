@@ -901,3 +901,64 @@ textarea {
   font-size: 18px;
   margin-top: 14px;
 }
+.theme-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.theme-toggle {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #173b2f;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  opacity: 0.9;
+}
+
+body.dark-mode {
+  background: #121212;
+  color: #f5f5f5;
+}
+
+body.dark-mode .card,
+body.dark-mode .stat-card,
+body.dark-mode .login-card,
+body.dark-mode .claim-item,
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select,
+body.dark-mode .notification-dropdown {
+  background: #1f1f1f;
+  color: #f5f5f5;
+  border-color: #333;
+}
+
+body.dark-mode .muted,
+body.dark-mode .claim-item p,
+body.dark-mode .stat-card span {
+  color: #cfcfcf;
+}
+
+body.dark-mode .hero {
+  background: linear-gradient(135deg, #101010, #1d1d1d);
+}
+
+body.dark-mode .primary-button {
+  background: #4caf50;
+}
+
+body.dark-mode .secondary-button,
+body.dark-mode .small-button {
+  background: #2a2a2a;
+  color: white;
+}
+
+body.dark-mode .footer {
+  background: #0d0d0d;
+}
