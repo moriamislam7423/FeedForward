@@ -300,6 +300,7 @@ function App() {
   const [backendStatus, setBackendStatus] = useState('Checking backend...');
   const [successMessage, setSuccessMessage] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
 const unreadCount = notifications.filter(function (note) {
   return !note.read;
@@ -335,6 +336,13 @@ const unreadCount = notifications.filter(function (note) {
   useEffect(function () {
     localStorage.setItem('feedforward_claims', JSON.stringify(myClaims));
   }, [myClaims]);
+  useEffect(function () {
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+}, [darkMode]);
 
   if (!user) {
     return <LoginScreen />;
@@ -751,9 +759,20 @@ sendBrowserNotification(
     </div>
   )}
 
+  <div className="theme-actions">
+  <button
+    className="theme-toggle"
+    onClick={function () {
+      setDarkMode(!darkMode);
+    }}
+  >
+    {darkMode ? '☀️ Light' : '🌙 Dark'}
+  </button>
+
   <button className="logout-button" onClick={logout}>
     Log out
   </button>
+</div>
 </div>
           </div>
         </nav>
